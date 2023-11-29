@@ -26,7 +26,7 @@ echo -e " $yellow ##### is configured correctly according to the device ####$noc
 #echo -e " $yellow ##### and that the anykernel.sh is configured correctly ########$nocol"
 
 # If using export, please uncomment these lines
-sudo apt-get update && sudo apt-get install llvm lld lldb clang gcc binutils flex bison build-essential git gcc g++ gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf gcc-arm-linux-gnueabi
+#sudo apt-get update && sudo apt-get install llvm lld lldb clang gcc binutils flex bison build-essential git gcc g++ gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf gcc-arm-linux-gnueabi
 
 
 
@@ -39,7 +39,10 @@ KERNEL_DEFCONFIG=akm_alioth-Kali_defconfig
 ANYKERNEL3_DIR=$PWD/AnyKernel3/
 #FINAL_KERNEL_ZIP=NetErnel_LineageOS-20.zip
 export ARCH=arm64
-#export PATH="$PWD/clang11/bin:${PATH}" 
+#export PATH="$PWD/proton-clang/bin:${PATH}" 
+
+echo -e "$green***Your Clang Version is $nocol"
+clang --version
 
 
 
@@ -68,8 +71,14 @@ make O=out \
         CROSS_COMPILE=aarch64-linux-gnu- \
         CROSS_COMPILE_ARM32=arm-linux-gnueabi \
         CC=clang \
-        -j$(nproc) 2>&1 | tee build.log
-
+        -j4 2>&1 | tee build.log
+        #AR=llvm-ar \
+        #NM=llvm-nm \
+        #OBJCOPY=llvm-objcopy \
+        #OBJDUMP=llvm-objdump \
+        #STRIP=llvm-strip \
+        
+  #  $(nproc)
 
 
 ### Other options that could be used if using protom clamg for example..

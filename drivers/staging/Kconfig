@@ -126,4 +126,10 @@ source "drivers/staging/erofs/Kconfig"
 
 source "drivers/staging/qcacld-3.0/Kconfig"
 
+source "drivers/staging/rtl8188eus/Kconfig"
+
+source "drivers/staging/rtl8812au/Kconfig"
+
+source "drivers/staging/rtl8814au/Kconfig"
+
 endif # STAGING

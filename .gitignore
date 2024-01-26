@@ -138,3 +138,4 @@ kernel/configs/android-*.cfg
 # Ignored build.log and 'out' folder where the kernel is compiled #using build.sh
 build.log
 out/
+error.log

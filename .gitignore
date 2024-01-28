@@ -139,3 +139,4 @@ kernel/configs/android-*.cfg
 build.log
 out/
 error.log
+Mod/

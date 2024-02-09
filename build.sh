@@ -8,7 +8,7 @@ yellow='\033[1;33m'
 nocol='\033[0m'
 green='\033[1;32m'
 red='\033[1;31m'
-MAKE_MODULE=0      # This flag is used to skip generating modules
+MAKE_MODULE=0      # This flag is used to disable generating modules permanently
 KERNELDIR=$PWD
 
 echo -e " $yellow ##### This requires that you've already installed ########$nocol "
@@ -32,6 +32,16 @@ ANYKERNEL3_DIR=$PWD/AnyKernel3/
 # FINAL_KERNEL_ZIP=NetErnel_LineageOS-20.zip
 export ARCH=arm64
 # export PATH="$PWD/proton-clang/bin:${PATH}"
+
+
+# Define variable to hold the name of the kernel artifact
+ARTIFACT="Image.gz-dtb"  # Default to uncompressed kernel image
+
+# Flag used to skip/build dtbo
+BUILD_DTBOIMG="0"   # DON"T BUILD DTBO! currently causes bootloop if dtbo.img is flashed
+# Set the DTBO path
+DTBO_PATH="vendor/qcom/alioth-sm8250-overlay.dtbo"  # path to dtbo
+
 
 initialize() {
     read -rp "Do you want to only compile the Modules? (y or n)" MOD_ONLY
@@ -119,12 +129,12 @@ clean_kernel() {
 
     echo -e "$yellow**** Removing 'Mod' and 'libufdt' folders ****$nocol"
     rm -rf Mod
-    # rm -rf "$KERNELDIR/scripts/ufdt/libufdt"
+    rm -rf "$KERNELDIR/scripts/ufdt/libufdt"
 
     echo -e "$yellow**** Cleaning 'AnyKernel3' folder / any previous builds ****$nocol"
     rm -f "$ANYKERNEL3_DIR"/*.zip
-    rm -rf $ANYKERNEL3_DIR/Image
-    # rm -rf $ANYKERNEL3_DIR/dtbo.img
+    rm -rf $ANYKERNEL3_DIR/$ARTIFACT
+    rm -rf $ANYKERNEL3_DIR/dtbo.img
 }
 
 build_kernel() {
@@ -168,7 +178,6 @@ build_kernel() {
     BUILD_MID=$(date +"%s")
     MID_DIFF=$(($BUILD_MID - $BUILD_START))
     echo -e "$yellow Kernel Compiled in $(($MID_DIFF / 60)) minute(s) and $(($MID_DIFF % 60)) seconds.$nocol"
-    MAKE_MODULE=0 
 }
 
 build_modules() {
@@ -285,15 +294,15 @@ zip_kernel() {
     echo "   COMPILING FINISHED! NOW MAKING IT INTO FLASHABLE ZIP "
     echo -e "***********************************************$nocol"
 
-    echo -e "$yellow**** Verify that Image is produced ****$nocol"
-    ls $PWD/out/arch/arm64/boot/Image
+    echo -e "$yellow**** Verify that $ARTIFACT is produced ****$nocol"
+    ls $PWD/out/arch/arm64/boot/$ARTIFACT
 
     echo -e "$yellow**** Verifying AnyKernel3 Directory ****$nocol"
     ls $ANYKERNEL3_DIR
 
     echo -e "$yellow**** Removing leftovers from anykernel3 folder ****$nocol"
-    rm -rf "$ANYKERNEL3_DIR/Image"
-    rm -rf "$ANYKERNEL3_DIR"/*.zip  # Warning this will remove any zip in Anykernel3 folder!
+    rm -rf "$ANYKERNEL3_DIR/$ARTIFACT"
+    rm -rf "$ANYKERNEL3_DIR"/*.zip  # Warning: this will remove any zip in Anykernel3 folder!
 
     # Generate today's date and time in the format YYYYMMDD_HHMMSS
     TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
@@ -301,8 +310,14 @@ zip_kernel() {
     # Append timestamp to the final kernel zip file name
     FINAL_KERNEL_ZIP_WITH_TIMESTAMP="${FINAL_KERNEL_ZIP%.*}_${TIMESTAMP}.zip"
 
-    echo -e "$yellow**** Copying Image to anykernel 3 folder ****$nocol"
-    cp "$KERNELDIR/out/arch/arm64/boot/Image" "$ANYKERNEL3_DIR/"
+    echo -e "$yellow**** Copying $ARTIFACT to anykernel 3 folder ****$nocol"
+    cp "$KERNELDIR/out/arch/arm64/boot/$ARTIFACT" "$ANYKERNEL3_DIR/"
+    
+    if [ $BUILD_DTBOIMG = "1" ]
+    then
+        echo -e "$yellow**** Copying dtbo.img to anykernel 3 folder ****$nocol"
+        cp "$KERNELDIR"/out/arch/arm64/boot/dtbo.img $ANYKERNEL3_DIR/dtbo.img
+    fi
 
     echo -e "$green**** Time to zip up! ****$nocol"
     cd $ANYKERNEL3_DIR/
@@ -333,13 +348,32 @@ summary() {
     [ -n "$MOD_NAME" ] && echo -e "$green**** Checksum for Module zip ****$nocol" && sha1sum "$KERNELDIR/Mod/$MOD_NAME" && echo -e "$green**** Generated Module Zip File Location: $KERNELDIR/Mod/$MOD_NAME ****$nocol"
 }
 
+
+build_dtbo() {
+    echo "Building DTBO..."
+
+    # Clone libufdt repository if not already present
+    if [ ! -d "$KERNELDIR/scripts/ufdt/libufdt" ]; then
+        git clone https://android.googlesource.com/platform/system/libufdt "$KERNELDIR/scripts/ufdt/libufdt"
+    fi
+
+    # Build DTBO
+    python2 "$KERNELDIR/scripts/ufdt/libufdt/utils/src/mkdtboimg.py" \
+        create "$KERNELDIR/out/arch/arm64/boot/dtbo.img" --page_size=4096 "$KERNELDIR/out/arch/arm64/boot/dts/$DTBO_PATH"
+
+    echo "DTBO image created: $KERNELDIR/out/arch/arm64/boot/dtbo.img"
+}
+
 # Call and test functions as needed
 
-# nitialize
+# initialize
 initializeTest
 clean_kernel
 if [ "$MOD_ONLY" == "n" ]; then
     build_kernel
+    if [ "$BUILD_DTBOIMG" == "1" ]; then
+        build_dtbo
+    fi
     zip_kernel
 fi
 build_modules

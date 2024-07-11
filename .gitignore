@@ -138,3 +138,6 @@ kernel/configs/android-*.cfg
 
 out/
 build.log
+/Mod
+/NetErnel_modules
+/AnyKernel3

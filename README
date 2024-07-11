@@ -1,3 +1,27 @@
+From AKM
+============
+For devs that want to fork this repo, you must clone the KernelSU repo to avoid compilation errors.
+curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s v0.9.5
+if you want to compile with a specific KernelSU version, after clonning kernelSU,
+cd KernelSU
+git fetch --tags
+# Make note of which version of kernelSU you want to compile with.
+git tag 
+# Checkout correct version | Example |
+git checkout v0.9.5
+
+for compiling Nethunter Modules, on the root directory of kernel, clone:
+
+git clone https://github.com/akm-04/NetErnels-Modules.git NetErnel_modules
+
+To compile:
+edit build.sh or aosp_build.sh, set correct parameters ie: which defconfig to use
+Then run ./build.sh to start compiling or run ./aosp_build.sh to compile using aosp clang (make sure clang path is specified according to your needs)
+
+| build.sh uses clang and binutils that installed on your system globally so make sure they are installed before compiling
+
+apt-get install clang binutils
+
 Linux kernel
 ============
 

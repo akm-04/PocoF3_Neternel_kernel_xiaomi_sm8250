@@ -1,22 +1,17 @@
 From AKM
 ============
-For devs that want to fork this repo, you must clone the KernelSU repo to avoid compilation errors.
-curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s v0.9.5
-if you want to compile with a specific KernelSU version, after clonning kernelSU,
-cd KernelSU
-git fetch --tags
-# Make note of which version of kernelSU you want to compile with.
-git tag 
-# Checkout correct version | Example |
-git checkout v0.9.5
+For devs that want to fork this repo, you must clone the KernelSU-Next repo to avoid compilation errors.
+curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next-susfs/kernel/setup.sh" | bash -s next-susfs
 
-for compiling Nethunter Modules, on the root directory of kernel, clone:
+
+For compiling Nethunter Modules, on the root directory of kernel, clone:
 
 git clone https://github.com/akm-04/NetErnels-Modules.git NetErnel_modules
 
 To compile:
 edit build.sh or aosp_build.sh, set correct parameters ie: which defconfig to use
 Then run ./build.sh to start compiling or run ./aosp_build.sh to compile using aosp clang (make sure clang path is specified according to your needs)
+Alternatively you could you Neotron_Clang-build.sh to build the kernel. just make sure neutron clang is installed beforehand and update clang directory by modifying the script.
 
 | build.sh uses clang and binutils that installed on your system globally so make sure they are installed before compiling
 

@@ -5,12 +5,15 @@
 ##                                         ##
 ##*****************************************##
 ##    Nethunter Kernel For Everyone :)     ##
+##KernelSU-Next: SUSFS-Integrated Root Core##
 ##*****************************************##
 ##     Kernel        : NetErnels Kernel    ##
 ##     Manufacturer  : Xiaomi              ##
+##     KernelSU-Next : Version 1.0.5 12430 ##
+##     SUSFS Version : v1.5.5              ##
 ##     Device        : Poco F3             ##
 ##     Codename      : alioth / alioth-in  ##
-##     Version       : 2.5                 ##
-##     Date          : 12th july 2024      ##
+##     Version       : 3.0                 ##
+##     Date          : 17th March 2025     ##
 ##     Author        : AKM                 ##
 #############################################
